@@ -360,7 +360,7 @@ public class JEditTextArea extends TextArea
 
 	//{{{ doWordCount() method
 	@SuppressWarnings("fallthrough")
-	protected static void doWordCount(View view, String text)
+	public static Object[] doWordCount(View view, String text)
 	{
 		char[] chars = text.toCharArray();
 		int characters = chars.length;
@@ -390,7 +390,7 @@ public class JEditTextArea extends TextArea
 		}
 
 		Object[] args = { characters, words, lines };
-		GUIUtilities.message(view,"wordcount",args);
+		return args;
 	} //}}}
 
 	//{{{ showWordCountDialog() method
@@ -403,11 +403,14 @@ public class JEditTextArea extends TextArea
 		String selection = getSelectedText();
 		if(selection != null)
 		{
-			doWordCount(view,selection);
+			Object[] args = doWordCount(view,selection);
+			GUIUtilities.message(view,"wordcount",args);
 			return;
 		}
 
-		doWordCount(view,buffer.getText(0,buffer.getLength()));
+		Object[] args = doWordCount(view,buffer.getText(0,buffer.getLength()));
+		GUIUtilities.message(view,"wordcount",args);
+
 	} //}}}
 
 	//{{{ Getters and setters

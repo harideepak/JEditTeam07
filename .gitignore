@@ -24,3 +24,8 @@ hs_err_pid*
 build/
 JEdit-5.5.0-master/build/
 jsr305-3.0.2.jar
+.idea
+JEdit-5.5.0-master/jEdit.iml
+JEdit-5.5.0-master/.idea/ant.xml
+JEdit-5.5.0-master/.idea/misc.xml
+JEdit-5.5.0-master/.idea/vcs.xml
