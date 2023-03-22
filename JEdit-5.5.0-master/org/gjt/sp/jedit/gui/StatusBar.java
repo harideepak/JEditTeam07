@@ -30,6 +30,7 @@ import javax.swing.text.Segment;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.StringTokenizer;
 import org.gjt.sp.jedit.textarea.*;
@@ -400,10 +401,17 @@ public class StatusBar extends JPanel
 			if (jEdit.getBooleanProperty("view.status.show-caret-offset", true) &&
 				jEdit.getBooleanProperty("view.status.show-caret-bufferlength", true))
 			{
+				int totalWordCount = Integer.parseInt(textArea.doWordCount(null, textArea.getText())[1].toString());
+				int wordCountTillCaret = Integer.parseInt(textArea.doWordCount(null, textArea.getText(0,textArea.getCaretPosition()))[1].toString());
 				buf.append('(');
 				buf.append(caretPosition);
 				buf.append('/');
 				buf.append(bufferLength);
+				buf.append(')');
+				buf.append('(');
+				buf.append(wordCountTillCaret);
+				buf.append('/');
+				buf.append(totalWordCount);
 				buf.append(')');
 			}
 			else if (jEdit.getBooleanProperty("view.status.show-caret-offset", true))
