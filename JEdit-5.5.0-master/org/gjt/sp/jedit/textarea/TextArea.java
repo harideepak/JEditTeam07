@@ -2421,7 +2421,7 @@ loop:			for(int i = 0; i < text.length(); i++)
 		return false;
 	}
 
-	private int[] caret_pos_or_error(boolean select, Selection s, boolean end) {
+	private int[] caretPosOrError(boolean select, Selection s, boolean end) {
 		if(select && (rectangularSelectionMode || s instanceof Selection.Rect))
 		{
 			if(s != null && caret == s.start)
@@ -2440,7 +2440,7 @@ loop:			for(int i = 0; i < text.length(); i++)
 		return null;
 	}
 
-	private int[] get_extra_virt(Selection s) {
+	private int[] getExtraVirt(Selection s) {
 		int[] extra_virt = new int[]{0, 0};
 		if(s instanceof Selection.Rect)
 		{ 
@@ -2463,16 +2463,16 @@ loop:			for(int i = 0; i < text.length(); i++)
 		if (caretMultiSelected(select, s)) {
 			return;
 		}
-		int[] extra_virt  = get_extra_virt(s);
+		int[] extraVirt  = getExtraVirt(s);
 		int newCaret = caret;
 
 		if (caret != buffer.getLength() || caret != getLineEndOffset(caretLine) - 1)
 		{
 			newCaret = getNextCharacterOffset(caret);
 		} else {
-			int[] new_extravirt = caret_pos_or_error(select, s, true);
-			if (new_extravirt != null) {
-				extra_virt = new_extravirt;
+			int[] newExtravirt = caretPosOrError(select, s, true);
+			if (newExtravirt != null) {
+				extraVirt = newExtravirt;
 			} else {
 				int line = displayManager.getNextVisibleLine(caretLine);
 				if (caret == getLineEndOffset(caretLine) - 1)
@@ -2481,7 +2481,7 @@ loop:			for(int i = 0; i < text.length(); i++)
 		}
 
 		if(select)
-			extendSelection(caret,newCaret,extra_virt[0],extra_virt[1]);
+			extendSelection(caret,newCaret,extraVirt[0],extraVirt[1]);
 		else if(!multi)
 			selectNone();
 
