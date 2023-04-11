@@ -2405,6 +2405,51 @@ loop:			for(int i = 0; i < text.length(); i++)
 		}
 	} //}}}
 
+	private boolean caretMultiSelected(boolean select, Selection s) {
+		if(select ||  !(s instanceof Selection.Range))
+			return false;
+		if (!multi)
+		{
+			setCaretPosition(s.end);
+			return true;
+		}
+		if(caret != s.end)
+		{
+			moveCaretPosition(s.end);
+			return true;
+		}
+		return false;
+	}
+
+	private int[] caret_pos_or_error(boolean select, Selection s, boolean end) {
+		if(select && (rectangularSelectionMode || s instanceof Selection.Rect))
+		{
+			if(s != null && caret == s.start)
+				return new int[]{0, 1};
+			else
+				return new int[]{1, 0};
+		}
+		else
+		{
+			int line = displayManager.getNextVisibleLine(caretLine);
+			if (end || line == -1) {
+				javax.swing.UIManager.getLookAndFeel().provideErrorFeedback(null);
+				return null;
+			}
+		}
+		return null;
+	}
+
+	private int[] get_extra_virt(Selection s) {
+		int[] extra_virt = new int[]{0, 0};
+		if(s instanceof Selection.Rect)
+		{ 
+			extra_virt[0] = ((Selection.Rect)s).extraStartVirt;
+			extra_virt[1] = ((Selection.Rect)s).extraEndVirt;
+		}
+		return extra_virt;
+	}
+
 	//{{{ goToNextCharacter() method
 	/**
 	 * Moves the caret to the next character.
@@ -2415,78 +2460,28 @@ loop:			for(int i = 0; i < text.length(); i++)
 	{
 		Selection s = getSelectionAtOffset(caret);
 
-		if(!select && s instanceof Selection.Range)
-		{
-			if(multi)
-			{
-				if(caret != s.end)
-				{
-					moveCaretPosition(s.end);
-					return;
-				}
-			}
-			else
-			{
-				setCaretPosition(s.end);
-				return;
-			}
+		if (caretMultiSelected(select, s)) {
+			return;
 		}
-
-		int extraStartVirt, extraEndVirt;
-		if(s instanceof Selection.Rect)
-		{
-			extraStartVirt = ((Selection.Rect)s).extraStartVirt;
-			extraEndVirt = ((Selection.Rect)s).extraEndVirt;
-		}
-		else
-		{
-			extraStartVirt = 0;
-			extraEndVirt = 0;
-		}
-
+		int[] extra_virt  = get_extra_virt(s);
 		int newCaret = caret;
 
-		if(caret == buffer.getLength())
+		if (caret != buffer.getLength() || caret != getLineEndOffset(caretLine) - 1)
 		{
-			if(select && (rectangularSelectionMode || s instanceof Selection.Rect))
-			{
-				if(s != null && caret == s.start)
-					extraStartVirt++;
-				else
-					extraEndVirt++;
-			}
-			else
-			{
-				javax.swing.UIManager.getLookAndFeel().provideErrorFeedback(null); 
-				return;
-			}
-		}
-		else if(caret == getLineEndOffset(caretLine) - 1)
-		{
-			if(select && (rectangularSelectionMode || s instanceof Selection.Rect))
-			{
-				if(s != null && caret == s.start)
-					extraStartVirt++;
-				else
-					extraEndVirt++;
-			}
-			else
-			{
+			newCaret = getNextCharacterOffset(caret);
+		} else {
+			int[] new_extravirt = caret_pos_or_error(select, s, true);
+			if (new_extravirt != null) {
+				extra_virt = new_extravirt;
+			} else {
 				int line = displayManager.getNextVisibleLine(caretLine);
-				if(line == -1)
-				{
-					javax.swing.UIManager.getLookAndFeel().provideErrorFeedback(null); 
-					return;
-				}
-				else
+				if (caret == getLineEndOffset(caretLine) - 1)
 					newCaret = getLineStartOffset(line);
 			}
 		}
-		else
-			newCaret = getNextCharacterOffset(caret);
 
 		if(select)
-			extendSelection(caret,newCaret,extraStartVirt,extraEndVirt);
+			extendSelection(caret,newCaret,extra_virt[0],extra_virt[1]);
 		else if(!multi)
 			selectNone();
 
